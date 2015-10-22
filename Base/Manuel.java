@@ -1,4 +1,4 @@
-package Helper;
+package Base;
 public class Manuel extends Commande{
 	public Manuel (){
 		super ("man");

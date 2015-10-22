@@ -1,4 +1,4 @@
-package Helper;
+package Base;
 public abstract class Commande{
 	private String nom;
 	public Commande (String nom){

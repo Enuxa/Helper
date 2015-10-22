@@ -1,4 +1,6 @@
-package Helper.Commandes;
+package Commandes;
+
+import Base.*;
 
 public class Lister extends Commande{
 	public Lister (){

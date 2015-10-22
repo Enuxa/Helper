@@ -1,4 +1,6 @@
-package Helper;
+package Base;
+
+import Commandes.*;
 import java.util.*;
 
 public class Memoire{
