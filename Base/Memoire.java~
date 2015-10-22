@@ -87,7 +87,6 @@ public class Memoire{
 		commandes.add (new Sortie ());
 		commandes.add (new AssignerAlphabet ());
 		commandes.add (new AfficherAlphabet ());
-		commandes.add (new AssignerExpression ());
 		
 		alphabet = null;
 	}

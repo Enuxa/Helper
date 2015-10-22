@@ -4,7 +4,7 @@ import Base.*;
 
 public class Lister extends Commande{
 	public Lister (){
-		super ("lister");
+		super ("ls");
 	}
 	public boolean executer (String[] args){
 		if (args.length == 0){

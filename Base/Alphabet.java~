@@ -1,5 +1,19 @@
-package Helper;
+package Base;
 
 public class Alphabet{
-	
+	private Lettre[] tab;
+	public Alphabet (Lettre[] t){
+		this.tab = t;
+	}
+	public Alphabet (String[] t){
+		this.tab = new Lettre[t.length];
+		for (int i = 0; i < t.length; i++)
+			this.tab[i] = new Lettre (t[i]);
+	}
+	public String[] getNomsLettres (){
+		String[] t = new String [this.tab.length];
+		for (int i = 0; i < t.length; i++)
+			t[i] = this.tab[i].toString();
+		return t;
+	}
 }
