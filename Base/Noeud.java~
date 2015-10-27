@@ -1,0 +1,225 @@
+package Base;
+
+import java.util.*;
+
+class Noeud{
+	private Noeud gauche, droite;
+	private Object valeur;
+	public boolean estFeuille (){
+		return this.gauche == null && this.droite == null;
+	}
+	public Etiquette getEtiquette (){
+		if (this.estFeuille ())
+			return (Etiquette)this.valeur;
+		else
+			return null;
+	}
+	public String getOperateur (){
+		if (this.estFeuille ())
+			return null;
+		else
+			return (String)this.valeur;
+	}
+	public Noeud (String s){
+		List<String> tokens = decomposer (s);
+		this.construire_rec (tokens);
+	}
+	private Noeud (){
+		this.gauche = null;
+		this.droite = null;
+		this.valeur = null;
+	}
+	//	Décomposition d'une chaîne en tokens
+	private List<String> decomposer (String arg){
+		String[] noms = Memoire.getNomsExpressions ();
+		
+		List<String> list = new ArrayList<String> ();
+		String str = "", c = "";
+		for (int i = 0; i < arg.length(); i++){
+			if (arg.charAt(i) == ' ')
+				continue;
+			str += arg.charAt (i);
+			
+			//	On récupère le caractère suivant
+			if (i + 1 < arg.length())
+				c = Character.toString (arg.charAt (i + 1));
+			else
+				c = null;
+			
+			//	Si ce caractère est une parenthèse/opérateur
+			if (estParenthese (str) || estOperateur (str)){
+				list.add (str);
+				str="";
+			}else{
+				int l = str.length (), m = str.length ();
+				String nom = null;
+				
+				//	On recherche le nom d'une ER en mémoire
+				for (int j = 0; j < noms.length; j++){
+					if (str.contains (noms[j])){
+						l = str.indexOf (noms[j]);
+						nom = noms[j];
+						break;
+					}
+				}
+				//	Si le prochain caractère en est un, si on reconnaît un nom d'ER à la fin de la chaîne courante ou si on atteint la fin de l'expression
+				if (c == null || estParenthese (c) || estOperateur (c) || nom != null){
+					//	Cas où il n'y a pas de concaténation implicite à la fin
+					if (c == null || c.equals (")") || estOperateur (c))
+						m = str.length () - 1;
+					
+					//	Traitement de la chaine
+					if (Character.isDigit (str.charAt (0))){
+						list.add (str);
+					}else{
+						//	Séparer les lettres
+						for (int j = 0; j < l; j++){
+							list.add (Character.toString (str.charAt (j)));
+							if (j < m)
+								list.add (".");
+						}
+					}
+
+					//	Si on a reconnu un nom d'ER
+					if (nom != null){
+						list.add (nom);
+						if (c != null && !estOperateur (c) && !c.equals (")"))
+							list.add (".");
+					}
+					str = "";
+				}
+			}
+		}
+		
+		return list;
+	}
+	private void construire_rec (List<String> tokens){
+		desencadrer (tokens);
+				
+		String operateur = "";
+		int p = 0, j = tokens.size ();
+		
+		for (int i = tokens.size () - 1; i >= 0; i--){
+			String token = tokens.get (i);
+			//	Entre/Sort-on de parenthèses ?
+			if (token.equals (")"))
+				p++;
+			else if (token.equals ("("))
+				p--;
+			//	A-t-on un opérateur hors de parenthèses ?
+			else if (p == 0 && estOperateur (token)){
+				int priorite = getPriorite (token);
+				//	La priorite est elle inférieure à celle de l'opérateur mémorisé ?
+				if (priorite < getPriorite (operateur)){
+					operateur = token;
+					j = i;
+				}
+			}
+		}
+		
+		//	Si on n'a mémorisé aucun opérateur, alors c'est qu'il n'y a qu'un unique token
+		if (operateur.equals ("")){
+			this.valeur = tokens.get(0);
+			if (tokens.get(0).equals ("e"))
+				this.valeur = null;
+			else if (Character.isDigit (tokens.get (0).charAt (0))){
+				this.valeur = Integer.valueOf (tokens.get(0));
+			}else if (Memoire.getExpression (tokens.get(0)) != null){
+				this.valeur = Memoire.getExpression (tokens.get(0));
+			}else{
+				if (Memoire.getAlphabet () == null || !Memoire.getAlphabet ().contient (tokens.get (0)))
+					throw new UnsupportedOperationException();
+				this.valeur = new Lettre (tokens.get (0));
+			}
+		}else{
+			this.valeur = operateur;
+			this.gauche = new Noeud ();
+			this.gauche.construire_rec (new ArrayList<String> (tokens.subList (0, j)));
+			if (!this.valeur.equals ("*")){
+				this.droite = new Noeud ();
+				this.droite.construire_rec (new ArrayList<String> (tokens.subList (j + 1, tokens.size ())));
+			}
+			//	Traitement des cas où on a un nombre alors que l'on ne devrait pas, et inversement
+			if (!this.valeur.equals ("^")){
+				if (this.droite != null && this.droite.valeur instanceof Integer)
+					throw new UnsupportedOperationException();
+				if (this.gauche != null && this.gauche.valeur instanceof Integer)
+					throw new UnsupportedOperationException();
+			}else{
+				if (this.droite == null || !(this.droite.valeur instanceof Integer))
+					throw new UnsupportedOperationException();
+				if (this.gauche == null || !(this.gauche.valeur instanceof Integer))
+					throw new UnsupportedOperationException();
+			}
+		}
+	}
+	private String toString_rec (int priorite){
+		String str = "";
+		int cettePriorite = getPriorite ("");
+
+		if (this.valeur != null && this.valeur instanceof String)
+			cettePriorite = getPriorite ((String)this.valeur);
+		
+		//	Membre de gauche
+		if (this.gauche != null)
+			str += this.gauche.toString_rec (cettePriorite);
+		
+		//	Valeur du noeud
+		if (this.valeur == null)
+			str += "\u03B5";
+		else{
+			if (this.valeur instanceof Expression)
+				str += ((Expression)this.valeur).getNom ();
+			else
+				str += this.valeur;
+		}
+		
+		//	Membre de droite
+		if (this.droite != null)
+			str += this.droite.toString_rec (cettePriorite);
+		
+		if (cettePriorite < priorite)
+			str = "(" + str + ")";
+		return str;
+	}
+	public String toString (){
+		return this.toString_rec (0);
+	}
+	private boolean estParenthese (String s){
+		return s.equals ("(") || s.equals (")");
+	}
+	private boolean estOperateur (String s){
+		return s.equals (".") || s.equals ("+") || s.equals ("*") || s.equals ("^");
+	}
+	private int getPriorite (String o){
+		if (o.equals ("+"))
+			return 1;
+		else if (o.equals ("."))
+			return 2;
+		else if (o.equals ("*") || o.equals ("^"))
+			return 3;
+		else return 4;
+	}
+	private boolean estEncadre (List <String> tokens){
+		int p = 0;
+		if (tokens.size() < 2 || !tokens.get(0).equals ("(") || !tokens.get (tokens.size()-1).equals (")"))
+			return false;
+		for (int i = 0; i < tokens.size (); i++){
+			if (tokens.get(i).equals ("("))
+				p++;
+			else if (tokens.get(i).equals (")"))
+				p--;
+			//	Si on a un parenthésage correct avant la fin de l'expression, c'est qu'on n'a pas emboîté des parenthèses
+			if (p == 0 && i < tokens.size () - 1)
+				return false;
+		}
+		
+		return true;
+	}
+	private void desencadrer (List<String> tokens){
+		while (estEncadre (tokens)){
+			tokens.remove (0);
+			tokens.remove (tokens.size () - 1);
+		}
+	}
+}

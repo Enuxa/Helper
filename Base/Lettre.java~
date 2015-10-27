@@ -7,8 +7,8 @@ public class Lettre implements Etiquette{
 	public String toString (){
 		return this.a;
 	}
-	public boolean equals (Lettre b){
-		return this.a.equals (b.toString ());
+	public boolean equals (String b){
+		return this.a.toString ().equals (b.toString ());
 	}
 	public boolean reconnait (Lettre a){
 		return this.equals (a);

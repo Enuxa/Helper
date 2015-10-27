@@ -19,24 +19,35 @@ public class Memoire{
 		throw new UnsupportedOperationException();
 	}
 	public static String[] getNomsAutomates (){
-		return getNoms (automates);
+		String[] t = new String [automates.size ()];
+		for (int i = 0; i < t.length; i++)
+			t[i] = automates.get (i).getNom ();
+		return t;
 	}
 	public static boolean removeExpression (String nom){
-		throw new UnsupportedOperationException();
+		Expression exp = getExpression (nom);
+		if (exp == null)
+			return false;
+		else
+			expressions.remove (exp);
+		return true;
 	}
 	public static boolean addExpression (Expression e){
-		throw new UnsupportedOperationException();
+		if (getExpression (e.getNom ()) != null)
+			return false;
+		expressions.add (e);
+		return true;
 	}
 	public static Expression getExpression (String nom){
-		throw new UnsupportedOperationException();
+		for (Expression e : expressions)
+			if (e.getNom ().equals (nom))
+				return e;
+		return null;
 	}
 	public static String[] getNomsExpressions (){
-		return getNoms (expressions);
-	}
-	private static String[] getNoms (List l){
-		String[] t = new String [l.size ()];
+		String[] t = new String [expressions.size ()];
 		for (int i = 0; i < t.length; i++)
-			t[i] = l.get (i).toString ();
+			t[i] = expressions.get (i).getNom ();
 		return t;
 	}
 	public static boolean executer (String entree){
@@ -60,7 +71,10 @@ public class Memoire{
 		return false;
 	}
 	public static String[] getNomsCommandes (){
-		return getNoms (commandes);
+		String[] t = new String [commandes.size ()];
+		for (int i = 0; i < t.length; i++)
+			t[i] = commandes.get (i).toString ();
+		return t;
 	}
 	public static Commande getCommande (String cmd){
 		for (Commande c : commandes){
@@ -87,6 +101,7 @@ public class Memoire{
 		commandes.add (new Sortie ());
 		commandes.add (new AssignerAlphabet ());
 		commandes.add (new AfficherAlphabet ());
+		commandes.add (new AssignerExpression ());
 		
 		alphabet = null;
 	}

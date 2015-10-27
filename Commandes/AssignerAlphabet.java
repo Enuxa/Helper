@@ -12,6 +12,21 @@ public class AssignerAlphabet extends Commande{
 			return false;
 		}
 		
+		for (int i = 0; i < args.length; i++){
+			if (Character.isDigit (args[i].charAt (0))){
+				System.out.println ("Les chiffres ne sont pas acceptés dans l'alphabet.");
+				return false;
+			}
+			if (args[i].length () > 1){
+				System.out.println ("Veuillez saisir des lettres.");
+				return false;
+			}
+			if (args[i].equals ("e")){
+				System.out.println ("Le caractère e est reservé au mot vide");
+				return false;
+			}
+		}
+		
 		Memoire.setAlphabet (new Alphabet (args));	
 		
 		return true;

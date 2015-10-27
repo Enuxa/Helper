@@ -1,0 +1,22 @@
+package Commandes;
+
+import Base.*;
+
+public class AfficherExpression extends Commande{
+	public AfficherExpression (){
+		super ("dispExpression");
+	}
+	public boolean executer (String[] args){
+		if (args.length == 0){
+			System.out.println ("Veuillez saisir le nom de l'expression rationnelle à afficher");
+			return false;
+		}
+		
+
+		
+		return true;
+	}
+	public String manuel (){
+		return super.toString () + "\nCréé ou redifinit une expression rationnelle.\nLa syntaxe est : setExpression [nom] [valeur]";
+	}
+}

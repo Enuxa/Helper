@@ -1,0 +1,16 @@
+import Base.*;
+
+public class Test{
+	public static void main (String[] args){
+		Memoire.initialiser ();
+		Alphabet alph = new Alphabet (new String[] {"a", "b", "c"});
+		System.out.println (alph.contient ("b"));
+		Memoire.addExpression (new Expression ("E2", args[0]));
+		String[] noms = Memoire.getNomsExpressions ();
+		Memoire.setAlphabet (alph);
+		for (int i = 0; i < noms.length; i++){
+			Expression e = Memoire.getExpression (noms[i]);
+			System.out.println (e.getNom () + " = " + e);
+		}
+	}
+}

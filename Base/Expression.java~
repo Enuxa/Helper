@@ -1,9 +1,13 @@
 package Base;
+
+import java.util.*;
+
 public class Expression{
-	private String valeur;
+	private Noeud racine;
 	private String nom;
 	public Expression (String nom, String valeur){
-		throw new UnsupportedOperationException();
+		this.nom = nom;
+		this.racine = new Noeud (valeur);
 	}
 	public boolean reconnait (String u){
 		throw new UnsupportedOperationException();
@@ -45,9 +49,16 @@ public class Expression{
 		return this.nom;
 	}
 	public String toString (){
-		return this.valeur;
+		if (this.racine == null)
+			return "\u03B5";
+		else return this.racine.toString ();
 	}
 	public static boolean estCorrecte (String s){
-		throw new UnsupportedOperationException();
+		try{
+			new Expression ("", s);
+		}catch (Exception e){
+			return false;
+		}
+		return true;
 	}
 }
